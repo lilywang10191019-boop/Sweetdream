@@ -1,0 +1,28 @@
+
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import { Setup } from './components/Setup';
+import { Drawing } from './components/Drawing';
+import { Results } from './components/Results';
+import { UserPicker } from './components/UserPicker';
+import { Participant, Seat, DrawResult, AppStage } from './types';
+import { Music, Ticket } from 'lucide-react';
+
+// 确定性随机数生成器，确保相同种子得到相同结果
+const seededRandom = (seed: string) => {
+  let h = 0;
+  for (let i = 0; i < seed.length; i++) h = Math.imul(31, h) + seed.charCodeAt(i) | 0;
+  return () => {
+    h = Math.imul(1597334677, h);
+    h = h >>> 0;
+    return (h ^ (h >>> 16)) / 4294967296;
+  };
+};
+
+const App: React.FC = () => {
+  const [stage, setStage] = useState<AppStage>('setup');
+  const [roomKey, setRoomKey] = useState('MUSIC2025');
+  const [currentUser, setCurrentUser] = useState<Participant | null>(null);
+
+  // 初始化时尝试从 URL 读取 roomKey
+  useEffect(() => {
+    const params =
